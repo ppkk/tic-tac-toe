@@ -1,0 +1,37 @@
+# 💾 Maven target directory (compiled Java classes, JARs, WARs)
+target/
+
+# 🏗️ Build files and dependencies
+*.log
+*.class
+*.jar
+*.war
+*.ear
+*.iml
+
+# 🚀 IntelliJ IDEA project files
+.idea/
+*.iws
+*.ipr
+
+# 🔍 IntelliJ and VS Code metadata
+.vscode/
+
+# 📜 Maven & Gradle caches
+.mvn/
+.gradle/
+!gradle/wrapper/gradle-wrapper.jar
+
+# 🔐 Secrets & credentials (if using)
+application.properties
+application.yml
+
+# 🛠 OS-specific files
+.DS_Store
+Thumbs.db
+
+# ⚙️ WSL & Linux-specific
+*.swp
+*.swo
+*.swn
+
