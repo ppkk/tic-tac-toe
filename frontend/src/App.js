@@ -13,6 +13,14 @@ const App = () => {
     fetchBoard();
   }, []);
 
+  // Periodically fetch board state
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchBoard();
+    }, 500); 
+    return () => clearInterval(interval);
+  }, []);
+
   const fetchBoard = async () => {
     try {
       const response = await fetch(`${API_URL}/board`);
@@ -55,4 +63,3 @@ const App = () => {
 };
 
 export default App;
-;
