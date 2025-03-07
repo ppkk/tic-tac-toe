@@ -3,13 +3,17 @@ package com.example.tictactoe.model;
 public class Move {
     private int row;
     private int col;
-    private String player;
 
-    public Move(int row, int col, String player) {
+    public Move() {}
+
+    public Move(int row, int col) {
         this.row = row;
         this.col = col;
-        this.player = player;
     }
 
-    // Getters and Setters
+    public int getRow() { return row; }
+    public void setRow(int row) { this.row = row; }
+
+    public int getCol() { return col; }
+    public void setCol(int col) { this.col = col; }
 }

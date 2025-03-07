@@ -35,3 +35,5 @@ Thumbs.db
 *.swo
 *.swn
 
+backend/node_modules/
+

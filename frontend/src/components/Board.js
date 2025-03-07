@@ -1,21 +1,19 @@
 import React from "react";
-import "./Board.css"; // For styling
-
-const BOARD_SIZE = 15; // Change this for different sizes
+import "./Board.css";
 
 const Board = ({ board, onCellClick }) => {
   return (
     <div className="board">
       {board.map((row, rowIndex) => (
-        <div key={rowIndex} className="row">
+        <div key={rowIndex} className="board-row">
           {row.map((cell, colIndex) => (
-            <button
+            <div
               key={colIndex}
-              className="cell"
+              className={`cell ${cell ? (cell === "X" ? "x" : "o") : ""}`}
               onClick={() => onCellClick(rowIndex, colIndex)}
             >
               {cell}
-            </button>
+            </div>
           ))}
         </div>
       ))}

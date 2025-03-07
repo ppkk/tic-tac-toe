@@ -1,58 +1,74 @@
 import React, { useState, useEffect } from "react";
+import { Client } from "@stomp/stompjs";
 import Board from "./components/Board";
 import "./App.css";
 
-const API_URL = "http://localhost:8080/api/game";
+const SOCKET_URL = "ws://localhost:8080/stomp-endpoint"; // Use ws:// for WebSocket
 
 const App = () => {
   const [board, setBoard] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [stompClient, setStompClient] = useState(null);
 
-  // Fetch board state on load
   useEffect(() => {
-    fetchBoard();
+    const client = new Client({
+      brokerURL: SOCKET_URL,
+      connectHeaders: {},
+      debug: (str) => console.log(str),
+      reconnectDelay: 5000,
+      onConnect: () => {
+        console.log("Connected to WebSocket");
+        client.subscribe("/topic/game", (message) => {
+          console.log("Received message: ", message.body);
+          setBoard(JSON.parse(message.body));
+        });
+        client.publish({ destination: "/app/reset" });
+      },
+      onStompError: (frame) => {
+        console.error('Broker reported error: ' + frame.headers['message']);
+        console.error('Additional details: ' + frame.body);
+      },
+      onWebSocketClose: (event) => {
+        console.log('WebSocket connection closed: ' + event);
+      },
+      onWebSocketError: (event) => {
+        console.error('WebSocket error: ' + event);
+      }
+    });
+
+    client.activate();
+    setStompClient(client);
+
+    return () => {
+      client.deactivate();
+    };
   }, []);
 
-  const fetchBoard = async () => {
-    try {
-      const response = await fetch(`${API_URL}/board`);
-      const data = await response.json();
-      setBoard(data);
-      setIsLoading(false);
-    } catch (error) {
-      console.error("Error fetching board:", error);
-    }
-  };
-
-  const handleCellClick = async (row, col) => {
-    try {
-      const response = await fetch(`${API_URL}/move?row=${row}&col=${col}`, {
-        method: "POST",
+  const handleCellClick = (row, col) => {
+    if (stompClient && stompClient.connected) {
+      stompClient.publish({
+        destination: "/app/move",
+        body: JSON.stringify({ row, col }),
       });
-      const data = await response.json();
-      setBoard(data);
-    } catch (error) {
-      console.error("Error making move:", error);
+    } else {
+      console.error("STOMP client is not connected");
     }
   };
 
-  const resetGame = async () => {
-    try {
-      await fetch(`${API_URL}/reset`, { method: "POST" });
-      fetchBoard();
-    } catch (error) {
-      console.error("Error resetting game:", error);
+  const resetGame = () => {
+    if (stompClient && stompClient.connected) {
+      stompClient.publish({ destination: "/app/reset" });
+    } else {
+      console.error("STOMP client is not connected");
     }
   };
 
   return (
     <div className="app">
-      <h1>Tic Tac Toe (15x15)</h1>
-      {isLoading ? <p>Loading...</p> : <Board board={board} onCellClick={handleCellClick} />}
+      <h1>Real-Time Tic Tac Toe</h1>
+      <Board board={board} onCellClick={handleCellClick} />
       <button onClick={resetGame} className="reset-btn">Reset Game</button>
     </div>
   );
 };
 
 export default App;
-;
