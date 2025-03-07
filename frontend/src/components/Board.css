@@ -1,0 +1,26 @@
+.board {
+  display: grid;
+  grid-template-columns: repeat(15, 40px);
+  grid-gap: 2px;
+  margin: 20px auto;
+  width: fit-content;
+}
+
+.row {
+  display: contents;
+}
+
+.cell {
+  width: 40px;
+  height: 40px;
+  font-size: 20px;
+  font-weight: bold;
+  text-align: center;
+  border: 1px solid #000;
+  background: #fff;
+  cursor: pointer;
+}
+
+.cell:hover {
+  background: #f0f0f0;
+}
