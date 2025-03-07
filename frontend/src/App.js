@@ -1,38 +1,58 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Board from "./components/Board";
-import "./App.css"; // For styling
+import "./App.css";
 
-const BOARD_SIZE = 15;
+const API_URL = "http://localhost:8080/api/game";
 
 const App = () => {
-  // State for the board (2D array filled with empty strings)
-  const [board, setBoard] = useState(
-    Array(BOARD_SIZE).fill(null).map(() => Array(BOARD_SIZE).fill(""))
-  );
+  const [board, setBoard] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Toggle between 'X' and 'O'
-  const [isXNext, setIsXNext] = useState(true);
+  // Fetch board state on load
+  useEffect(() => {
+    fetchBoard();
+  }, []);
 
-  // Handle cell click
-  const handleCellClick = (row, col) => {
-    if (board[row][col] !== "") return; // Ignore filled cells
+  const fetchBoard = async () => {
+    try {
+      const response = await fetch(`${API_URL}/board`);
+      const data = await response.json();
+      setBoard(data);
+      setIsLoading(false);
+    } catch (error) {
+      console.error("Error fetching board:", error);
+    }
+  };
 
-    const newBoard = board.map((r, rowIndex) =>
-      r.map((cell, colIndex) =>
-        rowIndex === row && colIndex === col ? (isXNext ? "X" : "O") : cell
-      )
-    );
+  const handleCellClick = async (row, col) => {
+    try {
+      const response = await fetch(`${API_URL}/move?row=${row}&col=${col}`, {
+        method: "POST",
+      });
+      const data = await response.json();
+      setBoard(data);
+    } catch (error) {
+      console.error("Error making move:", error);
+    }
+  };
 
-    setBoard(newBoard);
-    setIsXNext(!isXNext);
+  const resetGame = async () => {
+    try {
+      await fetch(`${API_URL}/reset`, { method: "POST" });
+      fetchBoard();
+    } catch (error) {
+      console.error("Error resetting game:", error);
+    }
   };
 
   return (
     <div className="app">
       <h1>Tic Tac Toe (15x15)</h1>
-      <Board board={board} onCellClick={handleCellClick} />
+      {isLoading ? <p>Loading...</p> : <Board board={board} onCellClick={handleCellClick} />}
+      <button onClick={resetGame} className="reset-btn">Reset Game</button>
     </div>
   );
 };
 
 export default App;
+;
